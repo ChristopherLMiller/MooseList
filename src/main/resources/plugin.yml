@@ -1,0 +1,37 @@
+name: MooseList
+main: com.moosemanstudios.MooseList.MooseList
+author: moose517
+version: ${version}
+description: ${description}
+commands:
+    mooselist:
+        description: generic MooseList command
+        aliases: [ml]
+permissions:
+    mooselist.*:
+        description: Grant all MooseList permissions nodes
+        children:
+            mooselist.message: true
+            mooselist.add: true
+            mooselist.remove: true
+            mooselist.enable: true
+            mooselist.view: true
+            mooselist.reload: true
+    mooselist.admin:
+        description: Grand all admin related functions
+        children:
+            mooselist.message: true
+            mooselist.reload: true
+            mooselist.enable: true
+    mooselist.message:
+        description: Allow changing of the kick message
+    mooselist.add:
+        description: Add people to the whitelist
+    mooselist.remove:
+        description: Remove people from the whitelist
+    mooselist.enable:
+        description: Enable and disable whitelisting
+    mooselist.view:
+        description: Allow viewing of whos whitelisted
+    mooselist.reload:
+        description: Reload configuration files and whitelist
