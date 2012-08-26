@@ -12,11 +12,10 @@ import org.bukkit.OfflinePlayer;
 
 import com.alta189.simplesave.Database;
 import com.alta189.simplesave.DatabaseFactory;
+import com.alta189.simplesave.exceptions.ConnectionException;
+import com.alta189.simplesave.exceptions.TableRegistrationException;
 import com.alta189.simplesave.mysql.MySQLConfiguration;
-
-import lib.PatPeter.SQLibrary.MySQL;
-import lib.PatPeter.SQLibrary.SQLite;
-
+import com.alta189.simplesave.sqlite.SQLiteConfiguration;
 
 public class WhiteListManager {
 	// the purpose of this class is to handle all whitelisting functions
@@ -29,12 +28,10 @@ public class WhiteListManager {
 	private String kickMessage;
 	private enum storage { FLATFILE, SQLITE, MYSQL };
 	private storage storageMethod;
-	private String sqliteFilename, sqliteTable;
-	// private String mysqlUsername, mysqlPassword, mysqlHost, mysqlPort, mysqlDatabase, mysqlTable; - deprecated by new library
-	private MySQLConfiguration MysqlConfig = null;
+	private String mysqlTable, sqliteTable;
+	private MySQLConfiguration mysqlConfig = null;
+	private SQLiteConfiguration sqliteConfig = null;
 	private Database db = null;
-	private SQLite sqlite = null;
-	private MySQL mysql = null;
 	private Logger log = Logger.getLogger("minecraft");
 	private Boolean whiteListEnabled;
 	
@@ -62,6 +59,7 @@ public class WhiteListManager {
 			return true;
 		} else {
 			// should never reach this
+			log.severe("[MooseList] Never should have reached this point. Please report to moose517");
 			return false;
 		}
 	}
@@ -71,76 +69,68 @@ public class WhiteListManager {
 	}
 
 	public void setSqliteProperties(String filename, String table) {
-		sqliteFilename = filename;
-		sqliteTable = table;		
+		sqliteConfig = new SQLiteConfiguration();
+		sqliteConfig.setPath(filename);
+		sqliteTable = table;
+	
 	}
 	
 	public void setMysqlProperties(String username, String password, String host, String port, String database, String table) {
-		MysqlConfig = new MySQLConfiguration();
-		MysqlConfig.setDatabase(database);
-		MysqlConfig.setHost(host);
-		MysqlConfig.setPassword(password);
-		MysqlConfig.setUser(username);
-		MysqlConfig.setPort(Integer.parseInt(port));
-		/* Old Pat Peter library variables
-		//mysqlUsername = username;
-		//mysqlPassword = password;
-		//mysqlHost = host;
-		//mysqlPort = port;
-		//mysqlDatabase = database;
-		//mysqlTable = table;*/
+		mysqlConfig = new MySQLConfiguration();
+		mysqlConfig.setDatabase(database);
+		mysqlConfig.setHost(host);
+		mysqlConfig.setPassword(password);
+		mysqlConfig.setUser(username);
+		mysqlConfig.setPort(Integer.parseInt(port));
+		mysqlTable = table;
 	}
 	
 	public Boolean init() {
-		// TODO: finish mysql
 		// this is where file creation takes place as well as setting up database links if need be based on the storage
 		switch(storageMethod) {
 		case FLATFILE:
 			// nothing needed for flatfile, all done with built in methods
 			return true;
 		case SQLITE:
-			sqlite = new SQLite(log, "[MooseList]", sqliteFilename, mainDirectory.toString());
-			sqlite.open();
+			db = DatabaseFactory.createNewDatabase(sqliteConfig);
 			
-			// check for table, create otherwise
-			if (!sqlite.checkTable(sqliteTable)) {
-				String query = "CREATE TABLE " + sqliteTable + " (id INT AUTO_INCREMENT PRIMARY_KEY, player VARCHAR(16));";
-				if (sqlite.createTable(query)) {
-					log.info("[MooseList] Created SQLite table successfully");
-					return true;
-				} else {
-					log.info("[MooseList] Creation of SQLite table failed!");
-					return false;
-				}
-			} else {
-				return true;
+			try {
+				db.registerTable(sqlTable.class);
+			} catch (TableRegistrationException e) {
+				e.printStackTrace();
 			}
+			break;
 		case MYSQL:
-			/*  OLD METHOD DEPRECATED
-			mysql = new MySQL(log, "[MooseList]", mysqlHost, mysqlPort, mysqlDatabase, mysqlUsername, mysqlPassword);
+			db = DatabaseFactory.createNewDatabase(mysqlConfig);
 			
-			mysql.open();
-			
-			// check if the table exists
-			if (!mysql.checkTable(mysqlTable)) {
-
-				String query = "CREATE TABLE IF NOT EXISTS " + mysqlTable + " (id INT NOT NULL AUTO_INCREMENT, player VARCHAR(16), PRIMARY KEY (id) );";
-				if (mysql.createTable(query)) {
-					log.info("[MooseList] Created table " + mysqlTable);
-					return true;
-				} else {
-					log.info("[MooseList] Failed to create mySQL table " + mysqlTable);
-					return false;
-				}
-			} else {
-				return true;
-			}*/
-			db = DatabaseFactory.createNewDatabase(MysqlConfig);
+			try {
+				db.registerTable(sqlTable.class);
+			} catch (TableRegistrationException e) {
+				e.printStackTrace();
+			}
+			break;
 		default: 
 			return false;
 		}
-	}
+		
+		try {
+			db.connect();
+			return true;
+		} catch (ConnectionException e) {
+			e.printStackTrace();
+			return false;
+		}
+ 	}
 	
+	public Boolean shutdown() {
+		try {
+			db.close();
+			return true;
+		} catch (ConnectionException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
 	public Boolean isWhitelisted(String player) {
 		// see if whitelisting is enabled first of all
 		if (whiteListEnabled) {

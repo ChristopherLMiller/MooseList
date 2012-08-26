@@ -54,6 +54,8 @@ public class MooseList extends JavaPlugin {
 	}
 	
 	public void onDisable() {
+		
+		whitelistmanager.shutdown();		
 		log.info(prefix + "is now disabled");
 	}
 	
