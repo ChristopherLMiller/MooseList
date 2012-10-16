@@ -17,6 +17,7 @@ permissions:
             mooselist.enable: true
             mooselist.view: true
             mooselist.reload: true
+            mooselist.whitelisted: true
     mooselist.admin:
         description: Grand all admin related functions
         children:
@@ -35,3 +36,5 @@ permissions:
         description: Allow viewing of whos whitelisted
     mooselist.reload:
         description: Reload configuration files and whitelist
+    mooselist.whitelisted:
+        description: Check if player is whitelisted

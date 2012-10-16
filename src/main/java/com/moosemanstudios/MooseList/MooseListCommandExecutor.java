@@ -42,6 +42,9 @@ public class MooseListCommandExecutor implements CommandExecutor{
 					if (sender.hasPermission("mooselist.message")) {
 						sender.sendMessage(ChatColor.RED + "/mooselist message [new message]" + ChatColor.WHITE + ": Change kick message to new message");
 					}
+					if (sender.hasPermission("mooselist.whitelisted")) {
+						sender.sendMessage(ChatColor.RED + "/mooselist whitelisted [player]" + ChatColor.WHITE + ": Check if specified player is whitelisted");
+					}
 					if (sender.hasPermission("mooselist.enable")) {
 						sender.sendMessage(ChatColor.RED + "/mooselist disable" + ChatColor.WHITE + ": Enable whitelisting");
 						sender.sendMessage(ChatColor.RED + "/mooselist enable" + ChatColor.WHITE + ": Disable whitelisting");
@@ -129,6 +132,21 @@ public class MooseListCommandExecutor implements CommandExecutor{
 						sender.sendMessage("Whitelisting mode disabled");
 					} else {
 						sender.sendMessage(ChatColor.RED + "Missing permission node required: mooselist.enable");
+					}
+				}
+				if (split[0].equalsIgnoreCase("whitelisted")) {
+					if (sender.hasPermission("mooselist.whitelisted")) {
+						if (split.length == 2) {
+							if (plugin.whitelistmanager.isWhitelisted(split[1])) {
+								sender.sendMessage(split[1] + " is whitelisted.");
+							} else {
+								sender.sendMessage(split[1] + " isn't whitelisted.");
+							}
+						} else {
+							sender.sendMessage("Must specify player to check");
+						}
+					} else {
+						sender.sendMessage(ChatColor.RED + "Missing permisson node required: mooselist.whitelisted");
 					}
 				}
 				if (split[0].equalsIgnoreCase("reload")) {

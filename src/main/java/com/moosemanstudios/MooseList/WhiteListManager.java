@@ -1,8 +1,6 @@
 package com.moosemanstudios.MooseList;
 
 import java.io.File;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -28,7 +26,7 @@ public class WhiteListManager {
 	private String kickMessage;
 	private enum storage { FLATFILE, SQLITE, MYSQL };
 	private storage storageMethod;
-	private String mysqlTable, sqliteTable;
+	private String mysqlTable;
 	private MySQLConfiguration mysqlConfig = null;
 	private SQLiteConfiguration sqliteConfig = null;
 	private Database db = null;
@@ -59,7 +57,7 @@ public class WhiteListManager {
 			return true;
 		} else {
 			// should never reach this
-			log.severe("[MooseList] Never should have reached this point. Please report to moose517");
+			log.severe("[MooseList] Error setting backend type.");
 			return false;
 		}
 	}
@@ -143,9 +141,16 @@ public class WhiteListManager {
 					return false;
 				}
 			case SQLITE:
-				ResultSet result = sqlite.query("SELECT * FROM " + sqliteTable + " WHERE player='" + player + "'");
-	
-				try {
+				//ResultSet result = sqlite.query("SELECT * FROM " + sqliteTable + " WHERE player='" + player + "'");
+				sqlTable result = db.select(sqlTable.class).where().equal("player", player).execute().findOne();
+				
+				if (result == null) {
+					return false;
+				} else {
+					
+				}
+				
+				/*try {
 					Boolean found = false;
 					while (result.next()) {
 						if (result.getString("player").equalsIgnoreCase(player)) {
@@ -160,7 +165,7 @@ public class WhiteListManager {
 					}
 				} catch (SQLException e) {
 					e.printStackTrace();
-				}
+				}*/
 			case MYSQL:
 				// TODO: implement
 				return false;
@@ -178,7 +183,7 @@ public class WhiteListManager {
 			Bukkit.getServer().getOfflinePlayer(player).setWhitelisted(true);
 			return true;
 		case SQLITE:
-			sqlite.query("INSERT INTO " + sqliteTable + " ('player') VALUES ('" + player + "');");
+			//sqlite.query("INSERT INTO " + sqliteTable + " ('player') VALUES ('" + player + "');");
 			return true;
 		case MYSQL:
 			return false;
@@ -193,7 +198,8 @@ public class WhiteListManager {
 		case FLATFILE:
 			Bukkit.getServer().getOfflinePlayer(player).setWhitelisted(false);
 		case SQLITE:
-			sqlite.query("DELETE FROM " + sqliteTable + " WHERE player='" + player + "';");
+			//db.
+			//sqlite.query("DELETE FROM " + sqliteTable + " WHERE player='" + player + "';");
 		case MYSQL:
 			// TODO: implement
 		}		
