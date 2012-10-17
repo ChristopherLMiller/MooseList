@@ -18,6 +18,7 @@ public class MooseList extends JavaPlugin {
 	MooseListPlayerListener playerListener;
 	public void onEnable() {
 		
+		// creat the whitelist manager object
 		whitelistmanager = new WhiteListManager(this.getDataFolder());
 		
 		// create the config file
@@ -84,9 +85,6 @@ public class MooseList extends JavaPlugin {
 				}
 				if (!getConfig().getConfigurationSection("storage").getConfigurationSection("sqlite").contains("filename")) {
 					getConfig().getConfigurationSection("storage").getConfigurationSection("sqlite").set("filename", "whitelist");
-				}
-				if (!getConfig().getConfigurationSection("storage").getConfigurationSection("sqlite").contains("table-name")) {
-					getConfig().getConfigurationSection("storage").getConfigurationSection("sqlite").set("table-name", "players");
 				}
 			}
 			if (!getConfig().getConfigurationSection("storage").contains("mysql")) {
@@ -172,8 +170,7 @@ public class MooseList extends JavaPlugin {
 				if (debug) {
 					log.info(prefix + "Storage method: sqlite");
 					String filename = getConfig().getConfigurationSection("storage").getConfigurationSection("sqlite").getString("filename");
-					String table = getConfig().getConfigurationSection("storage").getConfigurationSection("sqlite").getString("table-name");
-					whitelistmanager.setSqliteProperties(filename, table);
+					whitelistmanager.setSqliteProperties(filename);
 				}
 			}
 		} else if (getConfig().getConfigurationSection("storage").getConfigurationSection("mysql").getBoolean("enabled")) {

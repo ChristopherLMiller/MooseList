@@ -66,11 +66,9 @@ public class WhiteListManager {
 		return storageMethod.toString();
 	}
 
-	public void setSqliteProperties(String filename, String table) {
+	public void setSqliteProperties(String filename) {
 		sqliteConfig = new SQLiteConfiguration();
-		sqliteConfig.setPath(filename);
-		sqliteTable = table;
-	
+		sqliteConfig.setPath(filename);	
 	}
 	
 	public void setMysqlProperties(String username, String password, String host, String port, String database, String table) {
@@ -87,35 +85,36 @@ public class WhiteListManager {
 		// this is where file creation takes place as well as setting up database links if need be based on the storage
 		switch(storageMethod) {
 		case FLATFILE:
-			// nothing needed for flatfile, all done with built in methods
+			// TODO: nothing needed for flatfile, all done with built in methods
 			return true;
 		case SQLITE:
 			db = DatabaseFactory.createNewDatabase(sqliteConfig);
 			
+			// tray registering the table
 			try {
 				db.registerTable(sqlTable.class);
 			} catch (TableRegistrationException e) {
 				e.printStackTrace();
 			}
-			break;
+			
+			// open the connection
+			try {
+				db.connect();
+				return true; 
+			} catch (ConnectionException e) {
+				e.printStackTrace();
+				return false;
+			}
 		case MYSQL:
-			db = DatabaseFactory.createNewDatabase(mysqlConfig);
+			/*db = DatabaseFactory.createNewDatabase(mysqlConfig);
 			
 			try {
 				db.registerTable(sqlTable.class);
 			} catch (TableRegistrationException e) {
 				e.printStackTrace();
-			}
-			break;
-		default: 
+			}*/
 			return false;
-		}
-		
-		try {
-			db.connect();
-			return true;
-		} catch (ConnectionException e) {
-			e.printStackTrace();
+		default: 
 			return false;
 		}
  	}

@@ -12,9 +12,9 @@
   </properties>
   
   <scm>
-  	<developerConnection>scm:git:git@github.com:moose51789/Notebook.git</developerConnection>
-  	<connection>scm:git:git://github.com/moose51789/Notebook.bit</connection>
-  	<url>https://github.com/moose51789/Notebook/tree/master</url>
+  	<developerConnection>scm:git:git@github.com:moose51789/MooseList.git</developerConnection>
+  	<connection>scm:git:git://github.com/moose51789/MooseList.bit</connection>
+  	<url>https://github.com/moose51789/MooseList/tree/master</url>
   </scm>
   
   <dependencies>
